@@ -1,4 +1,5 @@
 import joblib
+import matplotlib.pyplot as plt
 import pandas as pd 
 import streamlit as st
 
@@ -8,15 +9,6 @@ nearest_neighbors = joblib.load(open("model-nearest-neighbors.joblib","rb"))
 decision_tree = joblib.load(open("model-decision-tree.joblib","rb"))
 neural_network = joblib.load(open("model-neural-network.joblib","rb"))
 tpot = joblib.load(open("model-tpot.joblib","rb"))
-
-
-def get_predictions(user_input, model):
-    prediction = model.predict(user_input)[0]
-    prediction_proba = pd.DataFrame(
-        data = (model.predict_proba(user_input)[0]*100).round(2), 
-        index = ['Dairy', 'Fruits', 'Grains', 'Protein', 'Sweets', 'Vegetables']
-    )
-    return (prediction, prediction_proba)
 
 
 def get_user_input():
@@ -56,31 +48,37 @@ def get_user_input():
     return data
 
 
+def get_predictions(user_input, model):
+    prediction = model.predict(user_input)[0]
+    prediction_proba = pd.DataFrame(
+        data = (model.predict_proba(user_input)[0]*100).round(2), 
+        index = ['Dairy', 'Fruits', 'Grains', 'Protein', 'Sweets', 'Vegetables']
+    )
+    prediction_proba.plot()
+    return (prediction, prediction_proba)
+
+
 def visualize_confidence_level(prediction_proba):
     """
     this function uses matplotlib to create inference bar chart rendered with streamlit in real-time 
     return type : matplotlib bar chart  
     """
-    ax = prediction_proba.plot(kind='barh', figsize=(7, 4), color='#722f37', zorder=10, width=0.5)
-    ax.legend().set_visible(False)
-    ax.set_xlim(xmin=0, xmax=100)
+    fig, ax = plt.subplots(figsize=(7, 4))
+
+    ax.barh(prediction_proba.index, prediction_proba[0], color=('#08e', '#d00', '#f90', '#527', '#f4a', '#5d5'))
     
+    ax.set_xlim(xmin=0, xmax=100)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_visible(True)
-    ax.spines['bottom'].set_visible(True)
-
     ax.tick_params(axis="both", which="both", bottom="off", top="off", labelbottom="on", left="off", right="off", labelleft="on")
-    
-    vals = ax.get_xticks()
-    for tick in vals:
+    for tick in ax.get_xticks():
         ax.axvline(x=tick, linestyle='dashed', alpha=0.4, color='#eeeeee', zorder=1)
 
-    ax.set_xlabel("Percentage(%) Confidence Level", labelpad=2, weight='bold', size=12)
+    ax.set_xlabel("Confidence Level (%)", labelpad=2, weight='bold', size=12)
     ax.set_ylabel("Food Group", labelpad=10, weight='bold', size=12)
     ax.set_title('Prediction Confidence Level', fontdict=None, loc='center', pad=None, weight='bold')
 
-    st.pyplot(ax.get_figure())
+    st.pyplot(fig)
 
 
 st.header('Food Group Classification')
