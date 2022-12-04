@@ -5,10 +5,10 @@ import streamlit as st
 
 
 # Load model pipeline 
-nearest_neighbors = joblib.load(open("model-nearest-neighbors.joblib","rb"))
-decision_tree = joblib.load(open("model-decision-tree.joblib","rb"))
-neural_network = joblib.load(open("model-neural-network.joblib","rb"))
-tpot = joblib.load(open("model-tpot.joblib","rb"))
+nearest_neighbors = joblib.load(open("model-nearest-neighbors.joblib", "rb"))
+decision_tree = joblib.load(open("model-decision-tree.joblib", "rb"))
+neural_network = joblib.load(open("model-neural-network.joblib", "rb"))
+tpot = joblib.load(open("model-tpot.joblib", "rb"))
 
 
 def get_user_input():
