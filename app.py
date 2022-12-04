@@ -4,7 +4,20 @@ import streamlit as st
 
 
 # Load model pipeline 
-model = joblib.load(open("model-tpot.joblib","rb"))
+nearest_neighbor = joblib.load(open("model-nearest-neighbor.joblib","rb"))
+decision_tree = joblib.load(open("model-decision-tree.joblib","rb"))
+neural_network = joblib.load(open("model-neural-network.joblib","rb"))
+tpot = joblib.load(open("model-tpot.joblib","rb"))
+
+
+def get_predictions(user_input, model):
+    prediction = model.predict(user_input)[0]
+    prediction_proba = pd.DataFrame(
+        data = (model.predict_proba(user_input)[0]*100).round(2), 
+        index = ['Dairy', 'Fruits', 'Grains', 'Protein', 'Sweets', 'Vegetables']
+    )
+    return (prediction, prediction_proba)
+
 
 def get_user_input():
     """
@@ -71,21 +84,32 @@ def visualize_confidence_level(prediction_proba):
 
 
 st.header('Food Group Classification')
-st.write('This application predicts the food groups of various food items, based on nutritional data provided by the user.')
+st.write('This application predicts the food groups of various food items, based on nutritional data provided by the user. It shows the predictions of four different models.')
 
 st.sidebar.header('User Input Parameters')
 st.sidebar.write('Please provide all the following nutritional values per serving.')
 user_input = get_user_input()
 
-st.subheader('User Input parameters')
-st.write('The predictive model accepts features that have been normalized for a 100 gram sample. The data shown below has been adjusted accordingly, and may differ from what the user inputs into the sidebar.')
+st.subheader('User Input Parameters')
+st.write('The predictive models accept features that have been normalized for a 100 gram sample. The data shown below has been adjusted accordingly and may differ from what the user inputs into the sidebar.')
 st.write(user_input)
 
-st.subheader('Prediction')
-prediction = model.predict(user_input)[0]
-prediction_proba = pd.DataFrame(
-    data = (model.predict_proba(user_input)[0]*100).round(2), 
-    index = ['Dairy', 'Fruits', 'Grains', 'Protein', 'Sweets', 'Vegetables']
-)
-st.write(f"The model classifies this food into the food group of {prediction}, with a confidence level of {prediction_proba.loc[prediction][0]}%.")
+st.subheader('Nearest Neighbor Prediction')
+prediction, prediction_proba = get_predictions(user_input, nearest_neighbor)
+st.write(f"This model classifies the food into the food group of {prediction}, with a confidence level of {prediction_proba.loc[prediction][0]}%.")
+visualize_confidence_level(prediction_proba)
+
+st.subheader('Decision Tree Prediction')
+prediction, prediction_proba = get_predictions(user_input, decision_tree)
+st.write(f"This model classifies the food into the food group of {prediction}, with a confidence level of {prediction_proba.loc[prediction][0]}%.")
+visualize_confidence_level(prediction_proba)
+
+st.subheader('Neural Network Prediction')
+prediction, prediction_proba = get_predictions(user_input, neural_network)
+st.write(f"This model classifies the food into the food group of {prediction}, with a confidence level of {prediction_proba.loc[prediction][0]}%.")
+visualize_confidence_level(prediction_proba)
+
+st.subheader('TPOT Prediction')
+prediction, prediction_proba = get_predictions(user_input, tpot)
+st.write(f"This model classifies the food into the food group of {prediction}, with a confidence level of {prediction_proba.loc[prediction][0]}%.")
 visualize_confidence_level(prediction_proba)
