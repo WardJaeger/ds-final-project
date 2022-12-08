@@ -1,1 +1,2 @@
-https://data.nal.usda.gov/dataset/composition-foods-raw-processed-prepared-usda-national-nutrient-database-standard-reference-release-28-0
+Data from: https://www.ars.usda.gov/Services/docs.htm?docid=8964
+Web app: https://food-group-classifier.herokuapp.com/
